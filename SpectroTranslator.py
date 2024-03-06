@@ -292,7 +292,7 @@ def train_SpectroTranslator(inputs_data_train,outputs_data_train,inputs_data_tes
     plt.yscale('log')
     if name_plotloss is not None:
         plt.savefig(name_plotloss,format="pdf")
-    plt.show()
+    ##plt.show()
     plt.close()
 
     return ANN
@@ -524,6 +524,17 @@ def plot_features_importances(results, category_names,namefile_plot=""):
     category_colors = plt.get_cmap('viridis')(
         np.linspace(0.15, 0.95, data.shape[1]))
 
+    ## To avoid having runded sum above 100
+    val_res=[]
+    for feature in results.keys():
+        rounded_res=np.round(features_importance[feature])
+        rounded_sum=np.sum(rounded_res)
+        if rounded_sum>100: # if roundedsum more than 101, check where the difference between the values and rounded values is the smallest
+            ind_min=np.argmin(features_importance[feature]-rounded_res)
+            rounded_res[ind_min]-=1
+        val_res.append(rounded_res)
+    val_res=np.array(val_res).astype(int)
+    
     fig, ax = plt.subplots(figsize=(12.2, 6))
     ax.invert_yaxis()
     ax.xaxis.set_visible(False)
@@ -532,6 +543,8 @@ def plot_features_importances(results, category_names,namefile_plot=""):
     shift=max_data*0.001
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = (data[:, i])
+        rounded_val = (val_res[:, i])
+
         starts = data_cum[:, i] - widths+shift
         ax.barh(labels, widths-2*shift, left=starts, height=0.5,
                 label=colname, color=color)
@@ -539,9 +552,11 @@ def plot_features_importances(results, category_names,namefile_plot=""):
 
         r, g, b, _ = color
         text_color = 'white' if g < 0.8 else 'darkslategrey'
-        for y, (x, c) in enumerate(zip(xcenters, widths)):
+        print(zip(xcenters, widths))
+        for y, (x, c) in enumerate(zip(xcenters, rounded_val)):
+            print(x,c)
             if(int(c)>0):
-                ax.text(x, y, str(round(c)), ha='center', va='center',
+                ax.text(x, y, str((c)), ha='center', va='center',
                     color=text_color)
     ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1),
               loc='lower left', fontsize='small')
@@ -549,7 +564,7 @@ def plot_features_importances(results, category_names,namefile_plot=""):
     fig.tight_layout()
     if(namefile_plot!=""):
         plt.savefig(namefile_plot, format='pdf')
-    #plt.show()
+    plt.show()
     plt.close()
 
 
@@ -729,8 +744,7 @@ def analysis_plot(train,test,inputs_features,outputs_features,error_outputs_feat
     fig.tight_layout()
     if(namefile_plot!=""):
         plt.savefig(namefile_plot, format='pdf')
-    else:
-        plt.show()
+    #plt.show()
     plt.close()
 
     
