@@ -527,10 +527,10 @@ def plot_features_importances(results, category_names,namefile_plot=""):
     ## To avoid having runded sum above 100
     val_res=[]
     for feature in results.keys():
-        rounded_res=np.round(features_importance[feature])
+        rounded_res=np.round(results[feature])
         rounded_sum=np.sum(rounded_res)
         if rounded_sum>100: # if roundedsum more than 101, check where the difference between the values and rounded values is the smallest
-            ind_min=np.argmin(features_importance[feature]-rounded_res)
+            ind_min=np.argmin(results[feature]-rounded_res)
             rounded_res[ind_min]-=1
         val_res.append(rounded_res)
     val_res=np.array(val_res).astype(int)
@@ -552,9 +552,7 @@ def plot_features_importances(results, category_names,namefile_plot=""):
 
         r, g, b, _ = color
         text_color = 'white' if g < 0.8 else 'darkslategrey'
-        print(zip(xcenters, widths))
         for y, (x, c) in enumerate(zip(xcenters, rounded_val)):
-            print(x,c)
             if(int(c)>0):
                 ax.text(x, y, str((c)), ha='center', va='center',
                     color=text_color)
